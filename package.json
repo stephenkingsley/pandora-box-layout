@@ -1,0 +1,64 @@
+{
+    "name": "pandora-box-layout",
+    "version": "0.1.0",
+    "description": "Cross-platform (React web + React Native) layout primitives and card templates. Props-only, flexbox-token based — the same component tree renders on web (<div>) and native (<View>).",
+    "type": "module",
+    "sideEffects": false,
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./package.json": "./package.json"
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "build": "rm -rf dist && tsc -p tsconfig.json",
+        "typecheck": "tsc -p tsconfig.json --noEmit",
+        "prepublishOnly": "npm run build"
+    },
+    "keywords": [
+        "react",
+        "react-native",
+        "cross-platform",
+        "layout",
+        "flexbox",
+        "low-code",
+        "pandora-box"
+    ],
+    "author": "stephenkingsley",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/stephenkingsley/pandora-box-layout.git"
+    },
+    "peerDependencies": {
+        "react": ">=18",
+        "react-native": ">=0.72",
+        "react-native-svg": ">=13",
+        "expo-linear-gradient": ">=12"
+    },
+    "peerDependenciesMeta": {
+        "react-native": {
+            "optional": true
+        },
+        "react-native-svg": {
+            "optional": true
+        },
+        "expo-linear-gradient": {
+            "optional": true
+        }
+    },
+    "devDependencies": {
+        "@types/react": "^18.3.12",
+        "react": "^18.3.1",
+        "typescript": "^5.6.3"
+    }
+}
