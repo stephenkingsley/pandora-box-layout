@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { MediaCaption, type MediaCaptionProps } from './media-caption';
+import { toRem } from './adapt';
 
 export interface MediaCarouselItem extends MediaCaptionProps {
     /** Card image URL. */
@@ -48,11 +49,11 @@ export function MediaCarousel({
 }: MediaCarouselProps) {
     const row: CSSProperties = {
         display: 'flex',
-        gap,
+        gap: toRem(gap),
         overflowX: 'auto',
         scrollSnapType: 'x mandatory',
-        padding: '0 16px 6px',
-        scrollPaddingLeft: 16,
+        padding: `0 ${toRem(16)} ${toRem(6)}`,
+        scrollPaddingLeft: toRem(16),
         scrollbarWidth: 'none',
     };
     return (
@@ -65,9 +66,9 @@ export function MediaCarousel({
                         position: 'relative',
                         flex: `0 0 ${cardWidth}%`,
                         scrollSnapAlign: 'start',
-                        borderRadius: 8,
+                        borderRadius: toRem(8),
                         overflow: 'hidden',
-                        height,
+                        height: toRem(height),
                         cursor: item.onClick ? 'pointer' : undefined,
                     }}
                 >

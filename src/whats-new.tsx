@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import { MediaCarousel, type MediaCarouselItem } from './media-carousel';
 import { Typography } from './typography';
+import { toRem } from './adapt';
 
 export interface WhatsNewProps {
     /**
@@ -11,8 +12,6 @@ export interface WhatsNewProps {
     /** The cards in the carousel (image + badge + title + description each). */
     items?: MediaCarouselItem[];
 }
-
-const headStyle: CSSProperties = { padding: '16px 16px 12px' };
 
 /**
  * «What's new» template — a section heading above a horizontal card carousel. A
@@ -36,6 +35,7 @@ export function WhatsNew({
         },
     ],
 }: WhatsNewProps) {
+    const headStyle: CSSProperties = { padding: `${toRem(16)} ${toRem(16)} ${toRem(12)}` };
     return (
         <div>
             <div style={headStyle}>

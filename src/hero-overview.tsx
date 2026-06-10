@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { Typography } from './typography';
+import { toRem } from './adapt';
 
 export interface HeroOverviewProps {
     /** Hero image — the full-width banner at the top. */
@@ -27,13 +28,6 @@ export interface HeroOverviewProps {
 }
 
 const wrap: CSSProperties = { background: '#fff' };
-const body: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-    alignItems: 'flex-start',
-    padding: 16,
-};
 
 /**
  * «顶部概览区» template — a full-bleed hero image with a title / subtitle / description
@@ -48,10 +42,17 @@ export function HeroOverview({
     description = 'Your all-in-one pass to Beijing. Pick from xx+ attractions & experience. Bundle together and save up to 50%.',
     height = 220,
 }: HeroOverviewProps) {
+    const body: CSSProperties = {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: toRem(8),
+        alignItems: 'flex-start',
+        padding: toRem(16),
+    };
     return (
         <div style={wrap}>
             {image ? (
-                <img src={image} alt="" style={{ width: '100%', height, objectFit: 'cover', display: 'block' }} />
+                <img src={image} alt="" style={{ width: '100%', height: toRem(height), objectFit: 'cover', display: 'block' }} />
             ) : null}
             <div style={body}>
                 {title ? <Typography variant="title" text={title} /> : null}

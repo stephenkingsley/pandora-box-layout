@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { FONT_SIZE, FONT_WEIGHT, type SizeToken, type WeightToken } from './tokens';
+import { toRem } from './adapt';
 
 export type TextAlign = 'start' | 'center' | 'end';
 
@@ -55,6 +56,7 @@ export function resolveTextStyle(props: TextProps): TextStyle {
  * {@link resolveTextStyle} and render an RN `<Text>`.
  */
 export function Text(props: TextProps) {
-    const style: CSSProperties = resolveTextStyle(props);
+    const s = resolveTextStyle(props);
+    const style: CSSProperties = { ...s, fontSize: toRem(s.fontSize) }; // fontWeight stays unitless
     return <span style={style}>{props.children ?? ''}</span>;
 }

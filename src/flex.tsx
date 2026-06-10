@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { SPACING, type SpacingToken } from './tokens';
+import { toRem } from './adapt';
 
 export type FlexDirection = 'row' | 'column';
 export type FlexJustify =
@@ -110,7 +111,9 @@ export function resolveFlexStyle(props: FlexProps): FlexStyle {
  * it to `StyleSheet.create` on a `<View>`.
  */
 export function Flex(props: FlexProps) {
-    const style: CSSProperties = resolveFlexStyle(props);
+    const s = resolveFlexStyle(props);
+    // Web: px tokens → rem so the box scales with the host's rem system. Native uses `s` as-is.
+    const style: CSSProperties = { ...s, gap: toRem(s.gap), padding: toRem(s.padding) };
     if (props.onClick) style.cursor = 'pointer';
     return (
         <div style={style} onClick={props.onClick}>

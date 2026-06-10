@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { toRem } from './adapt';
 
 export interface UpcomingItem {
     /**
@@ -57,28 +58,6 @@ const TONE: Record<'success' | 'warning' | 'neutral', { bg: string; fg: string }
     neutral: { bg: '#EEF1F4', fg: '#5A6B7E' },
 };
 
-const rowStyle: CSSProperties = {
-    display: 'flex',
-    gap: 12,
-    overflowX: 'auto',
-    padding: '0 16px 6px',
-    scrollSnapType: 'x mandatory',
-    scrollbarWidth: 'none',
-};
-const cardStyle: CSSProperties = {
-    flex: '0 0 86%',
-    scrollSnapAlign: 'start',
-    display: 'flex',
-    gap: 12,
-    padding: 14,
-    background: '#fff',
-    border: '1px solid #EEF1F4',
-    borderRadius: 14,
-    boxShadow: '0 2px 10px rgba(10, 35, 51, 0.05)',
-    boxSizing: 'border-box',
-};
-const metaStyle: CSSProperties = { display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, color: '#5A6B7E' };
-
 const PinIcon = () => (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flex: 'none' }}>
         <path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0Z" />
@@ -96,6 +75,9 @@ const CalIcon = () => (
  * «Upcoming» template — a section header (title + count + "View all") above a horizontal
  * row of booking cards (title, location, date/time, status badge, thumbnail). Self-contained
  * (scalar/array props, no slots); each card carries an optional per-card click action.
+ *
+ * Styles are built at render time (inside the component) so inline px → rem via `toRem`
+ * reflects any `configureRem` override (see adapt.ts).
  */
 export function UpcomingList({
     heading = 'Upcoming',
@@ -111,16 +93,37 @@ export function UpcomingList({
         },
     ],
 }: UpcomingListProps) {
+    const rowStyle: CSSProperties = {
+        display: 'flex',
+        gap: toRem(12),
+        overflowX: 'auto',
+        padding: `0 ${toRem(16)} ${toRem(6)}`,
+        scrollSnapType: 'x mandatory',
+        scrollbarWidth: 'none',
+    };
+    const cardStyle: CSSProperties = {
+        flex: '0 0 86%',
+        scrollSnapAlign: 'start',
+        display: 'flex',
+        gap: toRem(12),
+        padding: toRem(14),
+        background: '#fff',
+        border: '1px solid #EEF1F4',
+        borderRadius: toRem(14),
+        boxShadow: '0 2px 10px rgba(10, 35, 51, 0.05)',
+        boxSizing: 'border-box',
+    };
+    const metaStyle: CSSProperties = { display: 'flex', alignItems: 'center', gap: toRem(5), fontSize: toRem(13), color: '#5A6B7E' };
     return (
-        <div style={{ padding: '16px 0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', padding: '0 16px 12px' }}>
-                <span style={{ fontSize: 18, fontWeight: 700, color: '#0A2333' }}>{heading}</span>
-                <span style={{ fontSize: 18, fontWeight: 600, color: '#AFAEAD', marginLeft: 6 }}>{items.length}</span>
+        <div style={{ padding: `${toRem(16)} 0` }}>
+            <div style={{ display: 'flex', alignItems: 'center', padding: `0 ${toRem(16)} ${toRem(12)}` }}>
+                <span style={{ fontSize: toRem(18), fontWeight: 700, color: '#0A2333' }}>{heading}</span>
+                <span style={{ fontSize: toRem(18), fontWeight: 600, color: '#AFAEAD', marginLeft: toRem(6) }}>{items.length}</span>
                 <span style={{ flex: 1 }} />
                 {viewAllText ? (
                     <a
                         href={viewAllHref || undefined}
-                        style={{ fontSize: 14, fontWeight: 600, color: '#2563EB', textDecoration: 'none' }}
+                        style={{ fontSize: toRem(14), fontWeight: 600, color: '#2563EB', textDecoration: 'none' }}
                     >
                         {viewAllText}
                     </a>
@@ -131,8 +134,8 @@ export function UpcomingList({
                     const t = TONE[it.statusTone ?? 'success'];
                     return (
                         <div key={i} onClick={it.onClick} style={{ ...cardStyle, cursor: it.onClick ? 'pointer' : undefined }}>
-                            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                                <div style={{ fontSize: 16, fontWeight: 700, color: '#0A2333' }}>{it.title}</div>
+                            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: toRem(6) }}>
+                                <div style={{ fontSize: toRem(16), fontWeight: 700, color: '#0A2333' }}>{it.title}</div>
                                 {it.location ? (
                                     <div style={metaStyle}>
                                         <PinIcon />
@@ -149,11 +152,11 @@ export function UpcomingList({
                                     <span
                                         style={{
                                             alignSelf: 'flex-start',
-                                            marginTop: 2,
-                                            fontSize: 12,
+                                            marginTop: toRem(2),
+                                            fontSize: toRem(12),
                                             fontWeight: 600,
-                                            padding: '3px 10px',
-                                            borderRadius: 100,
+                                            padding: `${toRem(3)} ${toRem(10)}`,
+                                            borderRadius: toRem(100),
                                             background: t.bg,
                                             color: t.fg,
                                         }}
@@ -166,7 +169,7 @@ export function UpcomingList({
                                 <img
                                     src={it.image}
                                     alt=""
-                                    style={{ width: 84, height: 84, objectFit: 'cover', borderRadius: 10, flex: 'none' }}
+                                    style={{ width: toRem(84), height: toRem(84), objectFit: 'cover', borderRadius: toRem(10), flex: 'none' }}
                                 />
                             ) : null}
                         </div>

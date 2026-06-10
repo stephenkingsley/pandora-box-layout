@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { SPACING, type SpacingToken } from './tokens';
+import { toRem } from './adapt';
 
 export type OverlayPlacement = 'top' | 'center' | 'bottom';
 export type OverlayAlign = 'start' | 'center' | 'end' | 'stretch';
@@ -98,8 +99,11 @@ export function resolveOverlayStyle(props: OverlayProps): OverlayStyle {
  */
 export function Overlay(props: OverlayProps) {
     const { scrim = true } = props;
+    const base = resolveOverlayStyle(props);
     const style: CSSProperties = {
-        ...resolveOverlayStyle(props),
+        ...base,
+        gap: toRem(base.gap),
+        padding: toRem(base.padding),
         ...(scrim
             ? {
                   backgroundImage:

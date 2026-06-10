@@ -1,3 +1,4 @@
+export * from './adapt';
 export * from './tokens';
 export * from './flex';
 export * from './text';

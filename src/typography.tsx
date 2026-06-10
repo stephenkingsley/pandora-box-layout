@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { toRem } from './adapt';
 
 /** Typographic roles, mapped 1:1 to dp-design's type scale + foreground colours. */
 export type TypographyVariant = 'title' | 'subtitle' | 'body' | 'caption';
@@ -58,8 +59,8 @@ export function Typography(props: TypographyProps) {
     const style: CSSProperties = {
         margin: 0,
         fontFamily: FONT_FAMILY,
-        fontSize: v.fontSize,
-        lineHeight: `${v.lineHeight}px`,
+        fontSize: toRem(v.fontSize),
+        lineHeight: toRem(v.lineHeight),
         fontWeight: v.fontWeight,
         color: v.color,
         textAlign: align,

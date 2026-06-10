@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { SPACING, type SpacingToken } from './tokens';
+import { toRem } from './adapt';
 
 export type RadiusToken = 'none' | 'sm' | 'md' | 'lg';
 
@@ -34,10 +35,10 @@ const RADIUS: Record<RadiusToken, number> = { none: 0, sm: 8, md: 12, lg: 20 };
 export function Card(props: CardProps) {
     const { padding = 'md', radius = 'md', shadow = true, children, onClick } = props;
     const style: CSSProperties = {
-        padding: SPACING[padding],
-        borderRadius: RADIUS[radius],
+        padding: toRem(SPACING[padding]),
+        borderRadius: toRem(RADIUS[radius]),
         background: '#ffffff',
-        border: '1px solid #eef1f4',
+        border: '1px solid #eef1f4', // hairline border + shadow kept in px on purpose
         boxShadow: shadow ? '0 2px 10px rgba(10, 35, 51, 0.06)' : 'none',
     };
     if (onClick) style.cursor = 'pointer';
