@@ -14,10 +14,16 @@
  *   text-decoration: line-through      textDecorationLine: 'line-through'
  */
 import { ScrollView, View, Text, Image, Pressable, StyleSheet, Platform, Dimensions } from 'react-native';
+import { FONT_WEIGHT, HEADING_SIZE } from './tokens';
 import type { ServiceListProps } from './service-list';
 
 export function ServiceList({
     heading = 'Available Services',
+    headingSize = 'lg',
+    headingWeight = 'bold',
+    itemTitleWeight = 'regular',
+    itemPriceWeight = 'regular',
+    itemCtaWeight = 'regular',
     items = [
         {
             title: 'Fast Track',
@@ -31,7 +37,7 @@ export function ServiceList({
     const cardWidth = (Dimensions.get('window').width - 32) * 0.86; // flex: 0 0 86%
     return (
         <View style={{ paddingVertical: 16 }}>
-            <Text style={styles.heading}>{heading}</Text>
+            <Text style={[styles.heading, { fontSize: HEADING_SIZE[headingSize], fontWeight: String(FONT_WEIGHT[headingWeight]) }]}>{heading}</Text>
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -43,13 +49,13 @@ export function ServiceList({
                 {items.map((it, i) => (
                     <Pressable key={i} onPress={it.onClick} style={[styles.card, { width: cardWidth }]}>
                         <View style={{ flex: 1, gap: 5 }}>
-                            <Text style={styles.title}>{it.title}</Text>
+                            <Text style={[styles.title, { fontWeight: String(FONT_WEIGHT[itemTitleWeight]) as '400' | '500' | '700' }]}>{it.title}</Text>
                             {it.description ? <Text style={styles.desc}>{it.description}</Text> : null}
                             <View style={styles.priceRow}>
-                                {it.price ? <Text style={styles.price}>{it.price}</Text> : null}
+                                {it.price ? <Text style={[styles.price, { fontWeight: String(FONT_WEIGHT[itemPriceWeight]) as '400' | '500' | '700' }]}>{it.price}</Text> : null}
                                 {it.originalPrice ? <Text style={styles.original}>{it.originalPrice}</Text> : null}
                             </View>
-                            {it.ctaText ? <Text style={styles.cta}>{it.ctaText}</Text> : null}
+                            {it.ctaText ? <Text style={[styles.cta, { fontWeight: String(FONT_WEIGHT[itemCtaWeight]) as '400' | '500' | '700' }]}>{it.ctaText}</Text> : null}
                         </View>
                         {it.image ? <Image source={{ uri: it.image }} resizeMode="cover" style={styles.thumb} /> : null}
                     </Pressable>

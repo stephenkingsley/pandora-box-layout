@@ -1,6 +1,6 @@
 {
     "name": "pandora-box-layout",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Cross-platform (React web + React Native) layout primitives and card templates. Props-only, flexbox-token based — the same component tree renders on web (<div>) and native (<View>).",
     "type": "module",
     "sideEffects": false,

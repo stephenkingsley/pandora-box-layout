@@ -15,6 +15,7 @@
  */
 import { ScrollView, View, Text, Image, Pressable, StyleSheet, Platform, Dimensions } from 'react-native';
 import Svg, { Path, Rect, Circle } from 'react-native-svg';
+import { FONT_WEIGHT, HEADING_SIZE } from './tokens';
 import type { UpcomingListProps } from './upcoming-list';
 
 const TONE: Record<'success' | 'warning' | 'neutral', { bg: string; fg: string }> = {
@@ -38,6 +39,9 @@ const CalIcon = () => (
 
 export function UpcomingList({
     heading = 'Upcoming',
+    headingSize = 'lg',
+    headingWeight = 'bold',
+    itemTitleWeight = 'regular',
     viewAllText = 'View all',
     items = [
         {
@@ -53,8 +57,8 @@ export function UpcomingList({
     return (
         <View style={{ paddingVertical: 16 }}>
             <View style={styles.header}>
-                <Text style={styles.heading}>{heading}</Text>
-                <Text style={styles.count}>{items.length}</Text>
+                <Text style={[styles.heading, { fontSize: HEADING_SIZE[headingSize], fontWeight: String(FONT_WEIGHT[headingWeight]) }]}>{heading}</Text>
+                <Text style={[styles.count, { fontSize: HEADING_SIZE[headingSize] }]}>{items.length}</Text>
                 <View style={{ flex: 1 }} />
                 {viewAllText ? <Text style={styles.viewAll}>{viewAllText}</Text> : null}
             </View>
@@ -71,7 +75,7 @@ export function UpcomingList({
                     return (
                         <Pressable key={i} onPress={it.onClick} style={[styles.card, { width: cardWidth }]}>
                             <View style={{ flex: 1, gap: 6 }}>
-                                <Text style={styles.title}>{it.title}</Text>
+                                <Text style={[styles.title, { fontWeight: String(FONT_WEIGHT[itemTitleWeight]) as '400' | '500' | '700' }]}>{it.title}</Text>
                                 {it.location ? (
                                     <View style={styles.meta}>
                                         <PinIcon />

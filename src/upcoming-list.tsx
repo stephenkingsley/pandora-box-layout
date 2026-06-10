@@ -1,5 +1,7 @@
 import type { CSSProperties } from 'react';
 import { toRem } from './adapt';
+import { FONT_FAMILY } from './typography';
+import { FONT_WEIGHT, HEADING_SIZE, type HeadingSizeToken, type WeightToken } from './tokens';
 
 export interface UpcomingItem {
     /**
@@ -42,6 +44,21 @@ export interface UpcomingListProps {
      */
     heading?: string;
     /**
+     * Heading size preset (sm 14 / md 16 / lg 18 / xl 22).
+     * @default 'lg'
+     */
+    headingSize?: HeadingSizeToken;
+    /**
+     * Heading weight preset (regular 400 / medium 500 / bold 700).
+     * @default 'bold'
+     */
+    headingWeight?: WeightToken;
+    /**
+     * Weight of each card's title (regular 400 / medium 500 / bold 700).
+     * @default 'regular'
+     */
+    itemTitleWeight?: WeightToken;
+    /**
      * "View all" link text (leave empty to hide it).
      * @default "View all"
      */
@@ -81,6 +98,9 @@ const CalIcon = () => (
  */
 export function UpcomingList({
     heading = 'Upcoming',
+    headingSize = 'lg',
+    headingWeight = 'bold',
+    itemTitleWeight = 'regular',
     viewAllText = 'View all',
     viewAllHref,
     items = [
@@ -99,6 +119,9 @@ export function UpcomingList({
         overflowX: 'auto',
         padding: `0 ${toRem(16)} ${toRem(6)}`,
         scrollSnapType: 'x mandatory',
+        // Without this, the mandatory snap aligns card 1 to the scrollport edge on first
+        // layout — auto-scrolling by exactly the padding-left and "eating" the margin.
+        scrollPaddingLeft: toRem(16),
         scrollbarWidth: 'none',
     };
     const cardStyle: CSSProperties = {
@@ -115,10 +138,10 @@ export function UpcomingList({
     };
     const metaStyle: CSSProperties = { display: 'flex', alignItems: 'center', gap: toRem(5), fontSize: toRem(13), color: '#5A6B7E' };
     return (
-        <div style={{ padding: `${toRem(16)} 0` }}>
+        <div style={{ padding: `${toRem(16)} 0`, fontFamily: FONT_FAMILY }}>
             <div style={{ display: 'flex', alignItems: 'center', padding: `0 ${toRem(16)} ${toRem(12)}` }}>
-                <span style={{ fontSize: toRem(18), fontWeight: 700, color: '#0A2333' }}>{heading}</span>
-                <span style={{ fontSize: toRem(18), fontWeight: 600, color: '#AFAEAD', marginLeft: toRem(6) }}>{items.length}</span>
+                <span style={{ fontSize: toRem(HEADING_SIZE[headingSize]), fontWeight: FONT_WEIGHT[headingWeight], color: '#0A2333' }}>{heading}</span>
+                <span style={{ fontSize: toRem(HEADING_SIZE[headingSize]), fontWeight: 600, color: '#AFAEAD', marginLeft: toRem(6) }}>{items.length}</span>
                 <span style={{ flex: 1 }} />
                 {viewAllText ? (
                     <a
@@ -135,7 +158,7 @@ export function UpcomingList({
                     return (
                         <div key={i} onClick={it.onClick} style={{ ...cardStyle, cursor: it.onClick ? 'pointer' : undefined }}>
                             <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: toRem(6) }}>
-                                <div style={{ fontSize: toRem(16), fontWeight: 700, color: '#0A2333' }}>{it.title}</div>
+                                <div style={{ fontSize: toRem(16), fontWeight: FONT_WEIGHT[itemTitleWeight], color: '#0A2333' }}>{it.title}</div>
                                 {it.location ? (
                                     <div style={metaStyle}>
                                         <PinIcon />
