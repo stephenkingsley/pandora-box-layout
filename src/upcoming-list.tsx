@@ -136,7 +136,7 @@ export function UpcomingList({
         boxShadow: '0 2px 10px rgba(10, 35, 51, 0.05)',
         boxSizing: 'border-box',
     };
-    const metaStyle: CSSProperties = { display: 'flex', alignItems: 'center', gap: toRem(5), fontSize: toRem(13), color: '#5A6B7E' };
+    const metaStyle: CSSProperties = { display: 'flex', alignItems: 'center', gap: toRem(5), fontSize: toRem(13), color: '#5A6B7E', minHeight: toRem(18) };
     return (
         <div style={{ padding: `${toRem(16)} 0`, fontFamily: FONT_FAMILY }}>
             <div style={{ display: 'flex', alignItems: 'center', padding: `0 ${toRem(16)} ${toRem(12)}` }}>
@@ -159,42 +159,35 @@ export function UpcomingList({
                         <div key={i} onClick={it.onClick} style={{ ...cardStyle, cursor: it.onClick ? 'pointer' : undefined }}>
                             <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: toRem(6) }}>
                                 <div style={{ fontSize: toRem(16), fontWeight: FONT_WEIGHT[itemTitleWeight], color: '#0A2333' }}>{it.title}</div>
-                                {it.location ? (
-                                    <div style={metaStyle}>
-                                        <PinIcon />
-                                        {it.location}
-                                    </div>
-                                ) : null}
-                                {it.datetime ? (
-                                    <div style={metaStyle}>
-                                        <CalIcon />
-                                        {it.datetime}
-                                    </div>
-                                ) : null}
-                                {it.status ? (
-                                    <span
-                                        style={{
-                                            alignSelf: 'flex-start',
-                                            marginTop: toRem(2),
-                                            fontSize: toRem(12),
-                                            fontWeight: 600,
-                                            padding: `${toRem(3)} ${toRem(10)}`,
-                                            borderRadius: toRem(100),
-                                            background: t.bg,
-                                            color: t.fg,
-                                        }}
-                                    >
-                                        {it.status}
-                                    </span>
+                                {/* Fixed skeleton: each field keeps its slot — empty data leaves blank space, never collapses the card. */}
+                                <div style={metaStyle}>{it.location ? (<><PinIcon />{it.location}</>) : null}</div>
+                                <div style={metaStyle}>{it.datetime ? (<><CalIcon />{it.datetime}</>) : null}</div>
+                                <span
+                                    style={{
+                                        alignSelf: 'flex-start',
+                                        marginTop: toRem(2),
+                                        fontSize: toRem(12),
+                                        fontWeight: 600,
+                                        padding: `${toRem(3)} ${toRem(10)}`,
+                                        borderRadius: toRem(100),
+                                        background: t.bg,
+                                        color: t.fg,
+                                        visibility: it.status ? 'visible' : 'hidden',
+                                    }}
+                                >
+                                    {it.status || ' '}
+                                </span>
+                            </div>
+                            {/* Thumbnail slot always reserved; no image → blank (transparent), so every card stays aligned. */}
+                            <div style={{ width: toRem(84), height: toRem(84), borderRadius: toRem(10), flex: 'none' }}>
+                                {it.image ? (
+                                    <img
+                                        src={it.image}
+                                        alt=""
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: toRem(10), display: 'block' }}
+                                    />
                                 ) : null}
                             </div>
-                            {it.image ? (
-                                <img
-                                    src={it.image}
-                                    alt=""
-                                    style={{ width: toRem(84), height: toRem(84), objectFit: 'cover', borderRadius: toRem(10), flex: 'none' }}
-                                />
-                            ) : null}
                         </div>
                     );
                 })}
