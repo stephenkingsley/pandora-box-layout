@@ -125,18 +125,43 @@ export function UpcomingList({
         scrollbarWidth: 'none',
     };
     const cardStyle: CSSProperties = {
-        flex: '0 0 86%',
+        flex: `0 0 ${toRem(304)}`,
+        width: toRem(304),
+        height: toRem(128),
         scrollSnapAlign: 'start',
         display: 'flex',
-        gap: toRem(12),
-        padding: toRem(14),
+        padding: toRem(16),
         background: '#fff',
         border: '1px solid #EEF1F4',
         borderRadius: toRem(14),
         boxShadow: '0 2px 10px rgba(10, 35, 51, 0.05)',
         boxSizing: 'border-box',
+        overflow: 'hidden',
+    };
+    // Left text column — 200×96 within the 304×128 card; every row is single-line and ellipsises on overflow.
+    const textAreaStyle: CSSProperties = {
+        flex: 1,
+        minWidth: 0,
+        height: toRem(96),
+        display: 'flex',
+        flexDirection: 'column',
+        gap: toRem(5),
+        paddingRight: toRem(8),
+        boxSizing: 'border-box',
+        overflow: 'hidden',
+    };
+    const titleStyle: CSSProperties = {
+        fontSize: toRem(16),
+        lineHeight: toRem(20),
+        fontWeight: FONT_WEIGHT[itemTitleWeight],
+        color: '#0A2333',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
     };
     const metaStyle: CSSProperties = { display: 'flex', alignItems: 'center', gap: toRem(5), fontSize: toRem(13), color: '#5A6B7E', minHeight: toRem(18) };
+    const metaTextStyle: CSSProperties = { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' };
+    const imageBoxStyle: CSSProperties = { width: toRem(72), height: toRem(96), borderRadius: toRem(10), flex: 'none', overflow: 'hidden' };
     return (
         <div style={{ padding: `${toRem(16)} 0`, fontFamily: FONT_FAMILY }}>
             <div style={{ display: 'flex', alignItems: 'center', padding: `0 ${toRem(16)} ${toRem(12)}` }}>
@@ -157,21 +182,25 @@ export function UpcomingList({
                     const t = TONE[it.statusTone ?? 'success'];
                     return (
                         <div key={i} onClick={it.onClick} style={{ ...cardStyle, cursor: it.onClick ? 'pointer' : undefined }}>
-                            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: toRem(6) }}>
-                                <div style={{ fontSize: toRem(16), fontWeight: FONT_WEIGHT[itemTitleWeight], color: '#0A2333' }}>{it.title}</div>
+                            <div style={textAreaStyle}>
+                                <div style={titleStyle}>{it.title}</div>
                                 {/* Fixed skeleton: each field keeps its slot — empty data leaves blank space, never collapses the card. */}
-                                <div style={metaStyle}>{it.location ? (<><PinIcon />{it.location}</>) : null}</div>
-                                <div style={metaStyle}>{it.datetime ? (<><CalIcon />{it.datetime}</>) : null}</div>
+                                <div style={metaStyle}>{it.location ? (<><PinIcon /><span style={metaTextStyle}>{it.location}</span></>) : null}</div>
+                                <div style={metaStyle}>{it.datetime ? (<><CalIcon /><span style={metaTextStyle}>{it.datetime}</span></>) : null}</div>
                                 <span
                                     style={{
                                         alignSelf: 'flex-start',
-                                        marginTop: toRem(2),
+                                        maxWidth: '100%',
                                         fontSize: toRem(12),
                                         fontWeight: 600,
                                         padding: `${toRem(3)} ${toRem(10)}`,
                                         borderRadius: toRem(100),
                                         background: t.bg,
                                         color: t.fg,
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        boxSizing: 'border-box',
                                         visibility: it.status ? 'visible' : 'hidden',
                                     }}
                                 >
@@ -179,12 +208,12 @@ export function UpcomingList({
                                 </span>
                             </div>
                             {/* Thumbnail slot always reserved; no image → blank (transparent), so every card stays aligned. */}
-                            <div style={{ width: toRem(84), height: toRem(84), borderRadius: toRem(10), flex: 'none' }}>
+                            <div style={imageBoxStyle}>
                                 {it.image ? (
                                     <img
                                         src={it.image}
                                         alt=""
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: toRem(10), display: 'block' }}
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                                     />
                                 ) : null}
                             </div>
