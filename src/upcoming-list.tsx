@@ -65,6 +65,16 @@ export interface UpcomingListProps {
     viewAllText?: string;
     /** URL the "View all" link points to. */
     viewAllHref?: string;
+    /**
+     * "View all" link size preset (sm 14 / md 16 / lg 18 / xl 22).
+     * @default 'sm'
+     */
+    viewAllSize?: HeadingSizeToken;
+    /**
+     * "View all" link weight preset (regular 400 / medium 500 / bold 700).
+     * @default 'medium'
+     */
+    viewAllWeight?: WeightToken;
     /** The booking cards. */
     items?: UpcomingItem[];
 }
@@ -103,6 +113,8 @@ export function UpcomingList({
     itemTitleWeight = 'regular',
     viewAllText = 'View all',
     viewAllHref,
+    viewAllSize = 'sm',
+    viewAllWeight = 'medium',
     items = [
         {
             title: 'Example Lounge',
@@ -171,7 +183,7 @@ export function UpcomingList({
                 {viewAllText ? (
                     <a
                         href={viewAllHref || undefined}
-                        style={{ fontSize: toRem(14), fontWeight: 600, color: '#2563EB', textDecoration: 'none' }}
+                        style={{ fontSize: toRem(HEADING_SIZE[viewAllSize]), fontWeight: FONT_WEIGHT[viewAllWeight], color: '#2563EB', textDecoration: 'none' }}
                     >
                         {viewAllText}
                     </a>
