@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { toRem } from './adapt';
+import { FONT_SIZE, FONT_WEIGHT, type SizeToken, type WeightToken } from './tokens';
 
 /** Typographic roles, mapped 1:1 to dp-design's type scale + foreground colours. */
 export type TypographyVariant = 'title' | 'subtitle' | 'body' | 'caption';
@@ -14,6 +15,16 @@ export interface TypographyProps {
      * @default 'body'
      */
     variant?: TypographyVariant;
+    /**
+     * Font-size preset override (xs 12 / sm 14 / md 16 / lg 20 / xl 24) — falls back to the variant.
+     */
+    size?: SizeToken;
+    /**
+     * Font-weight preset override (regular 400 / medium 500 / bold 700) — falls back to the variant.
+     */
+    weight?: WeightToken;
+    /** Text colour override (hex / rgb) — falls back to the variant. */
+    color?: string;
     /**
      * Horizontal alignment.
      * @default 'left'
@@ -55,15 +66,17 @@ export const FONT_FAMILY = "'Poppins', system-ui, -apple-system, 'Segoe UI', san
  * on web, numberOfLines on native).
  */
 export function Typography(props: TypographyProps) {
-    const { text, variant = 'body', align = 'left', maxLines = 0 } = props;
+    const { text, variant = 'body', size, weight, color, align = 'left', maxLines = 0 } = props;
     const v = VARIANT[variant];
+    const fontSize = size ? FONT_SIZE[size] : v.fontSize;
     const style: CSSProperties = {
         margin: 0,
         fontFamily: FONT_FAMILY,
-        fontSize: toRem(v.fontSize),
-        lineHeight: toRem(v.lineHeight),
-        fontWeight: v.fontWeight,
-        color: v.color,
+        fontSize: toRem(fontSize),
+        // Overriding the size scales line-height proportionally (1.4×) instead of the variant's fixed value.
+        lineHeight: size ? toRem(Math.round(fontSize * 1.4)) : toRem(v.lineHeight),
+        fontWeight: weight ? FONT_WEIGHT[weight] : v.fontWeight,
+        color: color || v.color,
         textAlign: align,
     };
     if (maxLines > 0) {
