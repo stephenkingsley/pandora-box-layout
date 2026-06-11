@@ -73,9 +73,10 @@ export interface ServiceListProps {
 }
 
 /**
- * «Available Services» template — a heading above a horizontal row of service cards
- * (title, description, price + struck-through original price, CTA link, thumbnail).
- * Self-contained; each card carries an optional per-card click action (the CTA).
+ * «Available Services» template — a heading above a horizontal row of fixed 304×128 service cards
+ * (title, description, price + struck-through original price, CTA link, 72×96 thumbnail). Every
+ * line is single-line and ellipsises on overflow; empty fields keep their slot so cards stay
+ * aligned. Self-contained; each card carries an optional per-card click action (the CTA).
  *
  * Styles are built at render time so inline px → rem via `toRem` honours `configureRem`.
  */
@@ -107,45 +108,56 @@ export function ServiceList({
         scrollbarWidth: 'none',
     };
     const cardStyle: CSSProperties = {
-        flex: '0 0 86%',
+        flex: `0 0 ${toRem(304)}`,
+        width: toRem(304),
+        height: toRem(128),
         scrollSnapAlign: 'start',
         display: 'flex',
-        gap: toRem(12),
-        padding: toRem(14),
+        padding: toRem(16),
         background: '#fff',
         border: '1px solid #EEF1F4',
         borderRadius: toRem(14),
         boxShadow: '0 2px 10px rgba(10, 35, 51, 0.05)',
         boxSizing: 'border-box',
+        overflow: 'hidden',
     };
+    // Left text column — 200×96 within the 304×128 card; every row single-line + ellipsis.
+    const textAreaStyle: CSSProperties = {
+        flex: 1,
+        minWidth: 0,
+        height: toRem(96),
+        display: 'flex',
+        flexDirection: 'column',
+        gap: toRem(4),
+        paddingRight: toRem(8),
+        boxSizing: 'border-box',
+        overflow: 'hidden',
+    };
+    const ellipsis: CSSProperties = { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' };
+    const imageBoxStyle: CSSProperties = { width: toRem(72), height: toRem(96), borderRadius: toRem(10), flex: 'none', overflow: 'hidden' };
     return (
         <div style={{ padding: `${toRem(16)} 0`, fontFamily: FONT_FAMILY }}>
             <div style={{ fontSize: toRem(HEADING_SIZE[headingSize]), fontWeight: FONT_WEIGHT[headingWeight], color: '#0A2333', padding: `0 ${toRem(16)} ${toRem(12)}` }}>{heading}</div>
             <div className="lce-hscroll" style={rowStyle}>
                 {items.map((it, i) => (
                     <div key={i} onClick={it.onClick} style={{ ...cardStyle, cursor: it.onClick ? 'pointer' : undefined }}>
-                        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: toRem(5) }}>
-                            <div style={{ fontSize: toRem(16), fontWeight: FONT_WEIGHT[itemTitleWeight], color: '#0A2333' }}>{it.title}</div>
-                            {it.description ? (
-                                <div style={{ fontSize: toRem(13), color: '#5A6B7E', lineHeight: 1.4 }}>{it.description}</div>
-                            ) : null}
-                            <div style={{ display: 'flex', alignItems: 'baseline', gap: toRem(8), marginTop: toRem(2) }}>
-                                {it.price ? <span style={{ fontSize: toRem(18), fontWeight: FONT_WEIGHT[itemPriceWeight], color: '#0A2333' }}>{it.price}</span> : null}
+                        <div style={textAreaStyle}>
+                            <div style={{ fontSize: toRem(16), lineHeight: toRem(20), fontWeight: FONT_WEIGHT[itemTitleWeight], color: '#0A2333', ...ellipsis }}>{it.title}</div>
+                            {/* Description: single line — overflow truncates with an ellipsis (slot reserved when empty). */}
+                            <div style={{ fontSize: toRem(13), color: '#5A6B7E', minHeight: toRem(18), ...ellipsis }}>{it.description}</div>
+                            <div style={{ display: 'flex', alignItems: 'baseline', gap: toRem(8), minHeight: toRem(24), overflow: 'hidden' }}>
+                                {it.price ? <span style={{ fontSize: toRem(18), fontWeight: FONT_WEIGHT[itemPriceWeight], color: '#0A2333', minWidth: 0, ...ellipsis }}>{it.price}</span> : null}
                                 {it.originalPrice ? (
-                                    <span style={{ fontSize: toRem(14), color: '#AFAEAD', textDecoration: 'line-through' }}>{it.originalPrice}</span>
+                                    <span style={{ fontSize: toRem(14), color: '#AFAEAD', textDecoration: 'line-through', whiteSpace: 'nowrap', flex: 'none' }}>{it.originalPrice}</span>
                                 ) : null}
                             </div>
-                            {it.ctaText ? (
-                                <span style={{ marginTop: toRem(4), fontSize: toRem(14), fontWeight: FONT_WEIGHT[itemCtaWeight], color: '#2563EB' }}>{it.ctaText}</span>
+                            <span style={{ alignSelf: 'flex-start', maxWidth: '100%', display: 'inline-block', fontSize: toRem(14), fontWeight: FONT_WEIGHT[itemCtaWeight], color: '#2563EB', boxSizing: 'border-box', ...ellipsis, visibility: it.ctaText ? 'visible' : 'hidden' }}>{it.ctaText || ' '}</span>
+                        </div>
+                        <div style={imageBoxStyle}>
+                            {it.image ? (
+                                <img src={it.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                             ) : null}
                         </div>
-                        {it.image ? (
-                            <img
-                                src={it.image}
-                                alt=""
-                                style={{ width: toRem(84), height: toRem(84), objectFit: 'cover', borderRadius: toRem(10), flex: 'none', alignSelf: 'center' }}
-                            />
-                        ) : null}
                     </div>
                 ))}
             </div>
