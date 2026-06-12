@@ -1,8 +1,8 @@
 import type { CSSProperties } from 'react';
-import { toRem } from './adapt';
-import { FONT_SIZE, FONT_WEIGHT, type SizeToken, type WeightToken } from './tokens';
+import { useToken } from '@dragonpass/atom-ui-mobile';
+import { FONT_WEIGHT, resolveColor, type SizeToken, type WeightToken } from './tokens';
 
-/** Typographic roles, mapped 1:1 to dp-design's type scale + foreground colours. */
+/** Typographic roles, mapped 1:1 to dp-design's seed-token type scale + foreground colours. */
 export type TypographyVariant = 'title' | 'subtitle' | 'body' | 'caption';
 export type TypographyAlign = 'left' | 'center' | 'right';
 
@@ -10,20 +10,24 @@ export interface TypographyProps {
     /** The text to render. */
     text?: string;
     /**
-     * Typographic role — maps to dp-design's seed tokens (size / line-height /
-     * weight / colour), so text matches the design system without ad-hoc styles.
+     * Typographic role — maps to dp-design's seed tokens (size / line-height / weight / colour),
+     * read LIVE so it always matches the active dp theme.
      * @default 'body'
      */
     variant?: TypographyVariant;
     /**
-     * Font-size preset override (xs 12 / sm 14 / md 16 / lg 20 / xl 24) — falls back to the variant.
+     * Font-size override mapped to dp's text scale (xs→Xsm · sm→Sm · md→Default · lg→Lg · xl→Xlg) —
+     * falls back to the variant.
      */
     size?: SizeToken;
     /**
      * Font-weight preset override (regular 400 / medium 500 / bold 700) — falls back to the variant.
      */
     weight?: WeightToken;
-    /** Text colour override (hex / rgb) — falls back to the variant. */
+    /**
+     * Text colour override — a dp colour TOKEN NAME (e.g. "linkColor", resolved live against the
+     * theme) or a raw CSS colour; falls back to the variant's dp foreground token.
+     */
     color?: string;
     /**
      * Horizontal alignment.
@@ -38,45 +42,45 @@ export interface TypographyProps {
 }
 
 /**
- * dp-design seed tokens (mobile): textSize Xlg=18 / Default=14 / Sm=12, lineHeight
- * Xlg=28 / Default=20 / Sm=18, colours fgEmphasis #0A2333, fgPrimary #4B4A4A,
- * fgSecondary #737272, fgTertiary #AFAEAD. Kept here so the builder renders text in
- * the design-system's exact scale (dp's own `Text` is skeleton-only, no styling).
- */
-const VARIANT: Record<
-    TypographyVariant,
-    { fontSize: number; lineHeight: number; fontWeight: number; color: string }
-> = {
-    title: { fontSize: 18, lineHeight: 28, fontWeight: 700, color: '#0A2333' },
-    subtitle: { fontSize: 14, lineHeight: 20, fontWeight: 500, color: '#4B4A4A' },
-    body: { fontSize: 14, lineHeight: 20, fontWeight: 400, color: '#737272' },
-    caption: { fontSize: 12, lineHeight: 18, fontWeight: 400, color: '#AFAEAD' },
-};
-
-/** dp-design font stack — exported so sibling templates render the same face everywhere. */
-export const FONT_FAMILY = "'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif";
-
-/**
- * Styled text primitive built on dp-design's typography tokens. `text` is a scalar
- * prop (not a slot), so the component is self-contained — it renders identically in
- * the Puck editor and the Puck-free runtime, with no DropZone-wrapper interference.
+ * Styled text built on dp-design's **live** seed tokens. `useToken()` returns each token as a CSS
+ * custom-property reference (e.g. `textSizeXlg` → `var(--aum-text-size-xlg)`), applied directly so
+ * re-skinning dp-design (its `ConfigProvider` theme) re-skins this text automatically — size,
+ * line-height, colour and font-family all track the active theme. No hard-coded snapshot — which is
+ * the white-label foundation (the old static table had already drifted from dp's live scale).
  *
- * fontSize / fontWeight / color / textAlign are all valid in web CSS and RN, so the
- * RN binding reuses the same variant table (line-clamp differs: -webkit-line-clamp
- * on web, numberOfLines on native).
+ * `text` is a scalar prop (not a slot) → renders identically in the Puck editor and the Puck-free
+ * runtime. Sizing/scaling is dp's own (the vars), so this matches dp components exactly.
  */
 export function Typography(props: TypographyProps) {
     const { text, variant = 'body', size, weight, color, align = 'left', maxLines = 0 } = props;
-    const v = VARIANT[variant];
-    const fontSize = size ? FONT_SIZE[size] : v.fontSize;
+    const { token: t } = useToken();
+
+    // variant → dp seed tokens (each value is a `var(--aum-*)` reference, read live):
+    const v = {
+        title: { fs: t.textSizeXlg, lh: t.lineHeightXlg, fw: 700, c: t.fgEmphasisColor, ff: t.headingFontFamily },
+        subtitle: { fs: t.textSizeDefault, lh: t.lineHeightDefault, fw: 500, c: t.fgPrimaryColor, ff: t.bodyFontFamily },
+        body: { fs: t.textSizeDefault, lh: t.lineHeightDefault, fw: 400, c: t.fgSecondaryColor, ff: t.bodyFontFamily },
+        caption: { fs: t.textSizeSm, lh: t.lineHeightSm, fw: 400, c: t.fgTertiaryColor, ff: t.bodyFontFamily },
+    }[variant];
+
+    // size override → dp's text scale, with the matching line-height token:
+    const scale: Record<SizeToken, { fs?: string; lh?: string }> = {
+        xs: { fs: t.textSizeXsm, lh: t.lineHeightXsm },
+        sm: { fs: t.textSizeSm, lh: t.lineHeightSm },
+        md: { fs: t.textSizeDefault, lh: t.lineHeightDefault },
+        lg: { fs: t.textSizeLg, lh: t.lineHeightLg },
+        xl: { fs: t.textSizeXlg, lh: t.lineHeightXlg },
+    };
+    const chosen = size ? scale[size] : { fs: v.fs, lh: v.lh };
+
     const style: CSSProperties = {
         margin: 0,
-        fontFamily: FONT_FAMILY,
-        fontSize: toRem(fontSize),
-        // Overriding the size scales line-height proportionally (1.4×) instead of the variant's fixed value.
-        lineHeight: size ? toRem(Math.round(fontSize * 1.4)) : toRem(v.lineHeight),
-        fontWeight: weight ? FONT_WEIGHT[weight] : v.fontWeight,
-        color: color || v.color,
+        fontFamily: [v.ff, 'system-ui', 'sans-serif'].filter(Boolean).join(', '),
+        fontSize: chosen.fs,
+        lineHeight: chosen.lh,
+        fontWeight: weight ? FONT_WEIGHT[weight] : v.fw,
+        // `color` may be a dp token NAME (e.g. "linkColor" → resolve live) or a raw CSS colour; else variant.
+        color: resolveColor(color) || v.c,
         textAlign: align,
     };
     if (maxLines > 0) {
@@ -87,3 +91,6 @@ export function Typography(props: TypographyProps) {
     }
     return <div style={style}>{text}</div>;
 }
+
+/** dp-design body font stack — fallback for siblings; the live family now comes from the theme. */
+export const FONT_FAMILY = "'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif";

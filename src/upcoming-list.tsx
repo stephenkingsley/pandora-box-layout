@@ -1,7 +1,8 @@
 import type { CSSProperties } from 'react';
+import { Image, Tag } from '@dragonpass/atom-ui-mobile';
+import { Typography } from './typography';
+import { type HeadingSizeToken, type WeightToken } from './tokens';
 import { toRem } from './adapt';
-import { FONT_FAMILY } from './typography';
-import { FONT_WEIGHT, HEADING_SIZE, type HeadingSizeToken, type WeightToken } from './tokens';
 
 export interface UpcomingItem {
     /**
@@ -25,7 +26,7 @@ export interface UpcomingItem {
      */
     status?: string;
     /**
-     * Status colour tone.
+     * Status colour tone → dp `Tag` theme.
      * @default "success"
      */
     statusTone?: 'success' | 'warning' | 'neutral';
@@ -44,7 +45,7 @@ export interface UpcomingListProps {
      */
     heading?: string;
     /**
-     * Heading size preset (sm 14 / md 16 / lg 18 / xl 22).
+     * Heading size preset (sm / md / lg / xl), mapped to dp's text scale.
      * @default 'lg'
      */
     headingSize?: HeadingSizeToken;
@@ -66,7 +67,7 @@ export interface UpcomingListProps {
     /** URL the "View all" link points to. */
     viewAllHref?: string;
     /**
-     * "View all" link size preset (sm 14 / md 16 / lg 18 / xl 22).
+     * "View all" link size preset (sm / md / lg / xl).
      * @default 'sm'
      */
     viewAllSize?: HeadingSizeToken;
@@ -79,11 +80,8 @@ export interface UpcomingListProps {
     items?: UpcomingItem[];
 }
 
-const TONE: Record<'success' | 'warning' | 'neutral', { bg: string; fg: string }> = {
-    success: { bg: '#E7F6EC', fg: '#1B7F3B' },
-    warning: { bg: '#FEF3D7', fg: '#8A6100' },
-    neutral: { bg: '#EEF1F4', fg: '#5A6B7E' },
-};
+/** statusTone → dp Tag theme. */
+const TAG_THEME = { success: 'success', warning: 'warning', neutral: 'muted' } as const;
 
 const PinIcon = () => (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flex: 'none' }}>
@@ -99,12 +97,11 @@ const CalIcon = () => (
 );
 
 /**
- * «Upcoming» template — a section header (title + count + "View all") above a horizontal
- * row of booking cards (title, location, date/time, status badge, thumbnail). Self-contained
- * (scalar/array props, no slots); each card carries an optional per-card click action.
- *
- * Styles are built at render time (inside the component) so inline px → rem via `toRem`
- * reflects any `configureRem` override (see adapt.ts).
+ * «Upcoming» template — a section header (Typography heading + count + dp-`link`-coloured "View
+ * all") above a horizontal row of booking cards (Typography title, icon + meta lines, a dp `Tag`
+ * status badge, a dp `Image` thumbnail). Every colour/size comes from dp tokens (Typography, dp
+ * components, or `var(--aum-*)` for the inline bits) — no hard-coded hex — so it re-skins with dp.
+ * The 304×128 card + fixed-skeleton layout (empty fields keep their slot) is preserved.
  */
 export function UpcomingList({
     heading = 'Upcoming',
@@ -131,8 +128,6 @@ export function UpcomingList({
         overflowX: 'auto',
         padding: `0 ${toRem(16)} ${toRem(6)}`,
         scrollSnapType: 'x mandatory',
-        // Without this, the mandatory snap aligns card 1 to the scrollport edge on first
-        // layout — auto-scrolling by exactly the padding-left and "eating" the margin.
         scrollPaddingLeft: toRem(16),
         scrollbarWidth: 'none',
     };
@@ -142,19 +137,19 @@ export function UpcomingList({
         height: toRem(128),
         scrollSnapAlign: 'start',
         display: 'flex',
-        padding: toRem(16),
+        // Slightly tighter vertical padding so the 304×128 card gives the dp `Tag` row its full height.
+        padding: `${toRem(12)} ${toRem(16)}`,
         background: '#fff',
-        border: '1px solid #EEF1F4',
+        border: '1px solid var(--aum-border-default-color, #eef1f4)',
         borderRadius: toRem(14),
         boxShadow: '0 2px 10px rgba(10, 35, 51, 0.05)',
         boxSizing: 'border-box',
         overflow: 'hidden',
     };
-    // Left text column — 200×96 within the 304×128 card; every row is single-line and ellipsises on overflow.
     const textAreaStyle: CSSProperties = {
         flex: 1,
         minWidth: 0,
-        height: toRem(96),
+        height: toRem(104),
         display: 'flex',
         flexDirection: 'column',
         gap: toRem(5),
@@ -162,76 +157,56 @@ export function UpcomingList({
         boxSizing: 'border-box',
         overflow: 'hidden',
     };
-    const titleStyle: CSSProperties = {
-        fontSize: toRem(16),
-        lineHeight: toRem(20),
-        fontWeight: FONT_WEIGHT[itemTitleWeight],
-        color: '#0A2333',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
+    // meta rows: dp secondary-fg colour + small text token; the inline icons inherit via currentColor.
+    const metaStyle: CSSProperties = {
+        display: 'flex',
+        alignItems: 'center',
+        gap: toRem(5),
+        color: 'var(--aum-fg-secondary-color, #5A6B7E)',
+        fontSize: 'var(--aum-text-size-sm, 14px)',
+        minHeight: toRem(18),
     };
-    const metaStyle: CSSProperties = { display: 'flex', alignItems: 'center', gap: toRem(5), fontSize: toRem(13), color: '#5A6B7E', minHeight: toRem(18) };
     const metaTextStyle: CSSProperties = { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' };
-    const imageBoxStyle: CSSProperties = { width: toRem(72), height: toRem(96), borderRadius: toRem(10), flex: 'none', overflow: 'hidden' };
+    const imageBoxStyle: CSSProperties = { width: toRem(72), height: toRem(104), borderRadius: toRem(10), flex: 'none', overflow: 'hidden' };
     return (
-        <div style={{ padding: `${toRem(16)} 0`, fontFamily: FONT_FAMILY }}>
-            <div style={{ display: 'flex', alignItems: 'center', padding: `0 ${toRem(16)} ${toRem(12)}` }}>
-                <span style={{ fontSize: toRem(HEADING_SIZE[headingSize]), fontWeight: FONT_WEIGHT[headingWeight], color: '#0A2333' }}>{heading}</span>
-                <span style={{ fontSize: toRem(HEADING_SIZE[headingSize]), fontWeight: 600, color: '#AFAEAD', marginLeft: toRem(6) }}>{items.length}</span>
+        <div style={{ padding: `${toRem(16)} 0` }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', padding: `0 ${toRem(16)} ${toRem(12)}` }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: toRem(6) }}>
+                    <Typography variant="title" size={headingSize} weight={headingWeight} text={heading} />
+                    <Typography variant="title" size={headingSize} weight="medium" color="var(--aum-fg-tertiary-color)" text={String(items.length)} />
+                </div>
                 <span style={{ flex: 1 }} />
                 {viewAllText ? (
-                    <a
-                        href={viewAllHref || undefined}
-                        style={{ fontSize: toRem(HEADING_SIZE[viewAllSize]), fontWeight: FONT_WEIGHT[viewAllWeight], color: '#2563EB', textDecoration: 'none' }}
-                    >
-                        {viewAllText}
+                    <a href={viewAllHref || undefined} style={{ textDecoration: 'none' }}>
+                        <Typography text={viewAllText} size={viewAllSize} weight={viewAllWeight} color="var(--aum-link-color)" />
                     </a>
                 ) : null}
             </div>
             <div className="lce-hscroll" style={rowStyle}>
-                {items.map((it, i) => {
-                    const t = TONE[it.statusTone ?? 'success'];
-                    return (
-                        <div key={i} onClick={it.onClick} style={{ ...cardStyle, cursor: it.onClick ? 'pointer' : undefined }}>
-                            <div style={textAreaStyle}>
-                                <div style={titleStyle}>{it.title}</div>
-                                {/* Fixed skeleton: each field keeps its slot — empty data leaves blank space, never collapses the card. */}
-                                <div style={metaStyle}>{it.location ? (<><PinIcon /><span style={metaTextStyle}>{it.location}</span></>) : null}</div>
-                                <div style={metaStyle}>{it.datetime ? (<><CalIcon /><span style={metaTextStyle}>{it.datetime}</span></>) : null}</div>
-                                <span
-                                    style={{
-                                        alignSelf: 'flex-start',
-                                        maxWidth: '100%',
-                                        fontSize: toRem(12),
-                                        fontWeight: 600,
-                                        padding: `${toRem(3)} ${toRem(10)}`,
-                                        borderRadius: toRem(100),
-                                        background: t.bg,
-                                        color: t.fg,
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        boxSizing: 'border-box',
-                                        visibility: it.status ? 'visible' : 'hidden',
-                                    }}
-                                >
-                                    {it.status || ' '}
-                                </span>
-                            </div>
-                            {/* Thumbnail slot always reserved; no image → blank (transparent), so every card stays aligned. */}
-                            <div style={imageBoxStyle}>
-                                {it.image ? (
-                                    <img
-                                        src={it.image}
-                                        alt=""
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                                    />
+                {items.map((it, i) => (
+                    <div key={i} onClick={it.onClick} style={{ ...cardStyle, cursor: it.onClick ? 'pointer' : undefined }}>
+                        <div style={textAreaStyle}>
+                            <Typography variant="title" size="md" weight={itemTitleWeight} text={it.title} maxLines={1} />
+                            {/* Fixed skeleton: each field keeps its slot — empty data leaves blank space, never collapses the card. */}
+                            <div style={metaStyle}>{it.location ? (<><PinIcon /><span style={metaTextStyle}>{it.location}</span></>) : null}</div>
+                            <div style={metaStyle}>{it.datetime ? (<><CalIcon /><span style={metaTextStyle}>{it.datetime}</span></>) : null}</div>
+                            {/* Flex row (not a bare block) so the dp Tag's inline-block baseline gap doesn't inflate/clip the slot. */}
+                            <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0, minHeight: toRem(30) }}>
+                                {it.status ? (
+                                    <Tag theme={TAG_THEME[it.statusTone ?? 'success']} round>
+                                        {it.status}
+                                    </Tag>
                                 ) : null}
                             </div>
                         </div>
-                    );
-                })}
+                        {/* Thumbnail slot always reserved; no image → blank, so every card stays aligned. */}
+                        <div style={imageBoxStyle}>
+                            {it.image ? (
+                                <Image src={it.image} alt="" width="100%" height="100%" fit="cover" style={{ display: 'block' }} />
+                            ) : null}
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     );

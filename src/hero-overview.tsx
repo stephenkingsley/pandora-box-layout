@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { Image } from '@dragonpass/atom-ui-mobile';
 import { Typography } from './typography';
 import { toRem } from './adapt';
 
@@ -52,7 +53,7 @@ export function HeroOverview({
     return (
         <div style={wrap}>
             {image ? (
-                <img src={image} alt="" style={{ width: '100%', height: toRem(height), objectFit: 'cover', display: 'block' }} />
+                <Image src={image} alt="" width="100%" height={toRem(height)} fit="cover" style={{ display: 'block' }} />
             ) : null}
             <div style={body}>
                 {title ? <Typography variant="title" text={title} /> : null}

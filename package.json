@@ -1,6 +1,6 @@
 {
     "name": "pandora-box-layout",
-    "version": "0.1.8",
+    "version": "0.1.17",
     "description": "Cross-platform (React web + React Native) layout primitives and card templates. Props-only, flexbox-token based — the same component tree renders on web (<div>) and native (<View>).",
     "type": "module",
     "sideEffects": false,
@@ -43,7 +43,8 @@
         "react": ">=18",
         "react-native": ">=0.72",
         "react-native-svg": ">=13",
-        "expo-linear-gradient": ">=12"
+        "expo-linear-gradient": ">=12",
+        "@dragonpass/atom-ui-mobile": ">=1.1.0-beta.23"
     },
     "peerDependenciesMeta": {
         "react-native": {
@@ -53,6 +54,9 @@
             "optional": true
         },
         "expo-linear-gradient": {
+            "optional": true
+        },
+        "@dragonpass/atom-ui-mobile": {
             "optional": true
         }
     },

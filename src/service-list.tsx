@@ -1,7 +1,8 @@
 import type { CSSProperties } from 'react';
+import { Image } from '@dragonpass/atom-ui-mobile';
+import { Typography } from './typography';
+import { FONT_WEIGHT, type HeadingSizeToken, type WeightToken } from './tokens';
 import { toRem } from './adapt';
-import { FONT_FAMILY } from './typography';
-import { FONT_WEIGHT, HEADING_SIZE, type HeadingSizeToken, type WeightToken } from './tokens';
 
 export interface ServiceItem {
     /**
@@ -44,7 +45,7 @@ export interface ServiceListProps {
      */
     heading?: string;
     /**
-     * Heading size preset (sm 14 / md 16 / lg 18 / xl 22).
+     * Heading size preset (sm / md / lg / xl), mapped to dp's text scale.
      * @default 'lg'
      */
     headingSize?: HeadingSizeToken;
@@ -73,12 +74,10 @@ export interface ServiceListProps {
 }
 
 /**
- * «Available Services» template — a heading above a horizontal row of fixed 304×128 service cards
- * (title, description, price + struck-through original price, CTA link, 72×96 thumbnail). Every
- * line is single-line and ellipsises on overflow; empty fields keep their slot so cards stay
- * aligned. Self-contained; each card carries an optional per-card click action (the CTA).
- *
- * Styles are built at render time so inline px → rem via `toRem` honours `configureRem`.
+ * «Available Services» template — a Typography heading above a row of fixed 304×128 service cards
+ * (Typography title, description, price + struck-through original, dp-`link`-coloured CTA, dp
+ * `Image` thumbnail). Every colour/size is a dp token (Typography or `var(--aum-*)`), no hard-coded
+ * hex → re-skins with dp. Single-line + ellipsis per row; empty fields keep their slot.
  */
 export function ServiceList({
     heading = 'Available Services',
@@ -103,7 +102,6 @@ export function ServiceList({
         overflowX: 'auto',
         padding: `0 ${toRem(16)} ${toRem(6)}`,
         scrollSnapType: 'x mandatory',
-        // Keeps the mandatory snap from auto-scrolling past the padding (see upcoming-list).
         scrollPaddingLeft: toRem(16),
         scrollbarWidth: 'none',
     };
@@ -115,13 +113,12 @@ export function ServiceList({
         display: 'flex',
         padding: toRem(16),
         background: '#fff',
-        border: '1px solid #EEF1F4',
+        border: '1px solid var(--aum-border-default-color, #eef1f4)',
         borderRadius: toRem(14),
         boxShadow: '0 2px 10px rgba(10, 35, 51, 0.05)',
         boxSizing: 'border-box',
         overflow: 'hidden',
     };
-    // Left text column — 200×96 within the 304×128 card; every row single-line + ellipsis.
     const textAreaStyle: CSSProperties = {
         flex: 1,
         minWidth: 0,
@@ -136,26 +133,30 @@ export function ServiceList({
     const ellipsis: CSSProperties = { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' };
     const imageBoxStyle: CSSProperties = { width: toRem(72), height: toRem(96), borderRadius: toRem(10), flex: 'none', overflow: 'hidden' };
     return (
-        <div style={{ padding: `${toRem(16)} 0`, fontFamily: FONT_FAMILY }}>
-            <div style={{ fontSize: toRem(HEADING_SIZE[headingSize]), fontWeight: FONT_WEIGHT[headingWeight], color: '#0A2333', padding: `0 ${toRem(16)} ${toRem(12)}` }}>{heading}</div>
+        <div style={{ padding: `${toRem(16)} 0` }}>
+            <div style={{ padding: `0 ${toRem(16)} ${toRem(12)}` }}>
+                <Typography variant="title" size={headingSize} weight={headingWeight} text={heading} />
+            </div>
             <div className="lce-hscroll" style={rowStyle}>
                 {items.map((it, i) => (
                     <div key={i} onClick={it.onClick} style={{ ...cardStyle, cursor: it.onClick ? 'pointer' : undefined }}>
                         <div style={textAreaStyle}>
-                            <div style={{ fontSize: toRem(16), lineHeight: toRem(20), fontWeight: FONT_WEIGHT[itemTitleWeight], color: '#0A2333', ...ellipsis }}>{it.title}</div>
+                            <Typography variant="title" size="md" weight={itemTitleWeight} text={it.title} maxLines={1} />
                             {/* Description: single line — overflow truncates with an ellipsis (slot reserved when empty). */}
-                            <div style={{ fontSize: toRem(13), color: '#5A6B7E', minHeight: toRem(18), ...ellipsis }}>{it.description}</div>
+                            <div style={{ fontSize: 'var(--aum-text-size-sm, 14px)', color: 'var(--aum-fg-secondary-color, #5A6B7E)', minHeight: toRem(18), ...ellipsis }}>{it.description}</div>
                             <div style={{ display: 'flex', alignItems: 'baseline', gap: toRem(8), minHeight: toRem(24), overflow: 'hidden' }}>
-                                {it.price ? <span style={{ fontSize: toRem(18), fontWeight: FONT_WEIGHT[itemPriceWeight], color: '#0A2333', minWidth: 0, ...ellipsis }}>{it.price}</span> : null}
+                                {it.price ? (
+                                    <span style={{ fontSize: 'var(--aum-text-size-lg, 18px)', fontWeight: FONT_WEIGHT[itemPriceWeight], color: 'var(--aum-fg-emphasis-color, #0A2333)', minWidth: 0, ...ellipsis }}>{it.price}</span>
+                                ) : null}
                                 {it.originalPrice ? (
-                                    <span style={{ fontSize: toRem(14), color: '#AFAEAD', textDecoration: 'line-through', whiteSpace: 'nowrap', flex: 'none' }}>{it.originalPrice}</span>
+                                    <span style={{ fontSize: 'var(--aum-text-size-sm, 14px)', color: 'var(--aum-fg-tertiary-color, #AFAEAD)', textDecoration: 'line-through', whiteSpace: 'nowrap', flex: 'none' }}>{it.originalPrice}</span>
                                 ) : null}
                             </div>
-                            <span style={{ alignSelf: 'flex-start', maxWidth: '100%', display: 'inline-block', fontSize: toRem(14), fontWeight: FONT_WEIGHT[itemCtaWeight], color: '#2563EB', boxSizing: 'border-box', ...ellipsis, visibility: it.ctaText ? 'visible' : 'hidden' }}>{it.ctaText || ' '}</span>
+                            <span style={{ alignSelf: 'flex-start', maxWidth: '100%', display: 'inline-block', fontSize: 'var(--aum-text-size-sm, 14px)', fontWeight: FONT_WEIGHT[itemCtaWeight], color: 'var(--aum-link-color, #2563EB)', boxSizing: 'border-box', ...ellipsis, visibility: it.ctaText ? 'visible' : 'hidden' }}>{it.ctaText || ' '}</span>
                         </div>
                         <div style={imageBoxStyle}>
                             {it.image ? (
-                                <img src={it.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                                <Image src={it.image} alt="" width="100%" height="100%" fit="cover" style={{ display: 'block' }} />
                             ) : null}
                         </div>
                     </div>

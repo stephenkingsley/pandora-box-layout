@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import { MediaCarousel, type MediaCarouselItem } from './media-carousel';
-import { FONT_FAMILY } from './typography';
-import { FONT_WEIGHT, HEADING_SIZE, type HeadingSizeToken, type WeightToken } from './tokens';
+import { Typography } from './typography';
+import { type HeadingSizeToken, type WeightToken } from './tokens';
 import { toRem } from './adapt';
 
 export interface WhatsNewProps {
@@ -11,7 +11,7 @@ export interface WhatsNewProps {
      */
     heading?: string;
     /**
-     * Heading size preset (sm 14 / md 16 / lg 18 / xl 22).
+     * Heading size preset (sm / md / lg / xl), mapped to dp's text scale.
      * @default 'lg'
      */
     headingSize?: HeadingSizeToken;
@@ -25,9 +25,9 @@ export interface WhatsNewProps {
 }
 
 /**
- * «What's new» template — a section heading above a horizontal card carousel. A
- * self-contained module composing the heading + MediaCarousel, so ops drop it once and edit
- * the heading (text + size + weight) + cards. Renders identically in the editor and the runtime.
+ * «What's new» template — a section heading (dp `Typography`, emphasis colour + size/weight live
+ * from the dp theme) above a horizontal card carousel. Self-contained module; renders identically
+ * in the editor and the runtime.
  */
 export function WhatsNew({
     heading = "What's new",
@@ -48,11 +48,11 @@ export function WhatsNew({
         },
     ],
 }: WhatsNewProps) {
-    const headStyle: CSSProperties = { padding: `${toRem(16)} ${toRem(16)} ${toRem(12)}`, fontFamily: FONT_FAMILY };
+    const headStyle: CSSProperties = { padding: `${toRem(16)} ${toRem(16)} ${toRem(12)}` };
     return (
         <div>
             <div style={headStyle}>
-                <span style={{ fontSize: toRem(HEADING_SIZE[headingSize]), fontWeight: FONT_WEIGHT[headingWeight], color: '#0A2333' }}>{heading}</span>
+                <Typography variant="title" text={heading} size={headingSize} weight={headingWeight} />
             </div>
             <MediaCarousel items={items} />
         </div>

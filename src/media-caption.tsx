@@ -1,4 +1,6 @@
 import type { CSSProperties } from 'react';
+import { Tag } from '@dragonpass/atom-ui-mobile';
+import { Typography } from './typography';
 import { toRem } from './adapt';
 
 export interface MediaCaptionProps {
@@ -14,46 +16,15 @@ const gradient =
     'linear-gradient(180deg, rgba(0,0,0,0) 7.34%, rgba(0,0,0,0.30) 49.31%, rgba(0,0,0,0.75) 91.28%)';
 
 /**
- * Caption overlay for an image card — a dark bottom-up gradient scrim with a glassy
- * badge top-left and a white title + description bottom-left. Designed to sit in a
- * Swiper slide's `content` (over the slide image), matching dp's "What's new" /
- * lounge-carousel cards.
+ * Caption overlay for an image card — a dark bottom-up scrim (legibility) with a dp `Tag`
+ * badge top-left and a title + description bottom-left. The badge re-skins with dp's tag
+ * theme; the text uses dp-token sizes/weights via `Typography` but stays white for legibility
+ * over the photo (an over-image colour is functional, not a brand token — like the scrim).
  *
- * `badge` / `title` / `description` are SCALAR props (not slots), so the component is
- * self-contained: it renders identically in the Puck editor and the runtime. Styles are
- * built at render time so `configureRem` overrides apply (see adapt.ts).
+ * `badge` / `title` / `description` are SCALAR props (not slots) → renders identically in the
+ * Puck editor and the runtime.
  */
 export function MediaCaption({ badge, title, description }: MediaCaptionProps) {
-    const pillStyle: CSSProperties = {
-        padding: `${toRem(5)} ${toRem(12)}`,
-        background: 'rgba(0,0,0,0.40)',
-        backdropFilter: 'blur(12px)',
-        borderRadius: toRem(100),
-        fontSize: toRem(12),
-        lineHeight: toRem(18),
-        color: '#fefdfd',
-        whiteSpace: 'nowrap',
-    };
-    const titleStyle: CSSProperties = {
-        margin: 0,
-        fontFamily: "'Cabin', 'Poppins', system-ui, sans-serif",
-        fontSize: toRem(20),
-        lineHeight: toRem(30),
-        fontWeight: 500,
-        color: '#ececec',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-    };
-    const descStyle: CSSProperties = {
-        margin: `${toRem(4)} 0 0`,
-        fontSize: toRem(12),
-        lineHeight: toRem(18),
-        color: '#ececec',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-    };
     const root: CSSProperties = {
         position: 'absolute',
         inset: 0,
@@ -67,11 +38,15 @@ export function MediaCaption({ badge, title, description }: MediaCaptionProps) {
     return (
         <div className="lce-overlay" style={root}>
             <div style={{ display: 'flex', gap: toRem(8) }}>
-                {badge ? <span style={pillStyle}>{badge}</span> : null}
+                {badge ? (
+                    <Tag theme="muted" round>
+                        {badge}
+                    </Tag>
+                ) : null}
             </div>
             <div>
-                {title ? <p style={titleStyle}>{title}</p> : null}
-                {description ? <p style={descStyle}>{description}</p> : null}
+                {title ? <Typography variant="subtitle" text={title} color="#ffffff" maxLines={1} /> : null}
+                {description ? <Typography variant="caption" text={description} color="#ffffff" maxLines={1} /> : null}
             </div>
         </div>
     );

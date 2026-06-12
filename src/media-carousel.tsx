@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { Image } from '@dragonpass/atom-ui-mobile';
 import { MediaCaption, type MediaCaptionProps } from './media-caption';
 import { toRem } from './adapt';
 
@@ -72,10 +73,13 @@ export function MediaCarousel({
                         cursor: item.onClick ? 'pointer' : undefined,
                     }}
                 >
-                    <img
+                    <Image
                         src={item.src}
                         alt=""
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        width="100%"
+                        height="100%"
+                        fit="cover"
+                        style={{ display: 'block' }}
                     />
                     <MediaCaption badge={item.badge} title={item.title} description={item.description} />
                 </div>

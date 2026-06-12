@@ -48,3 +48,29 @@ export const FONT_WEIGHT: Record<WeightToken, number> = {
     medium: 500,
     bold: 700,
 };
+
+/**
+ * A dp-design colour-token NAME → its live CSS custom property, e.g.
+ * `"successColor"` → `"var(--aum-success-color)"`. The editor stores semantic token NAMES
+ * (white-label: the doc references the theme, not a frozen value); components resolve them at
+ * render to dp's var, which the active `ConfigProvider` theme drives — so re-skinning follows.
+ * Built by convention (camelCase → `--aum-kebab-case`) rather than reading the token object, so it
+ * works even for tokens the object doesn't surface (e.g. the inverse foregrounds).
+ */
+export function dpColorVar(name: string): string {
+    return `var(--aum-${name.replace(/([A-Z])/g, '-$1').toLowerCase()})`;
+}
+
+/** A value that's already a raw CSS colour / gradient (NOT a dp token name) to pass through verbatim. */
+const RAW_COLOR_RE = /^(?:#|rgb|hsl|var\(|color-mix|linear-|radial-|conic-)/i;
+
+/**
+ * Resolve a colour value coming from the editor: a dp colour-token NAME (e.g. `"linkColor"`) →
+ * its live theme var; a raw CSS colour or gradient → returned unchanged. `undefined` for empty.
+ */
+export function resolveColor(value?: string): string | undefined {
+    if (!value) return undefined;
+    const v = value.trim();
+    if (RAW_COLOR_RE.test(v) || /gradient/i.test(v)) return value;
+    return dpColorVar(v);
+}
